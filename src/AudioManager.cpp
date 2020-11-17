@@ -15,14 +15,21 @@ namespace Paavo
 
     void AudioManager::init()
     {
-        AudioMemory(20);
-        AudioMemory_F32(10);
+        AudioMemory(30);
+        AudioMemory_F32(20);
         patchUsbToFloat[0] = new AudioConnection(usb1, 0, int2Float[0], 0);
         patchUsbToFloat[1] = new AudioConnection(usb1, 1, int2Float[1], 0);
-        patch[0] = new AudioConnection_F32(int2Float[0], 0, float2Int[0], 0);
+/*         patch[0] = new AudioConnection_F32(int2Float[0], 0, float2Int[0], 0);
         patch[1] = new AudioConnection_F32(int2Float[1], 0, float2Int[1], 0);
         patch[2] = new AudioConnection_F32(int2Float[0], 0, float2Int[2], 0);
         patch[3] = new AudioConnection_F32(int2Float[1], 0, float2Int[3], 0);
+ */
+        patch[0] = new AudioConnection_F32(int2Float[0], 0, zita, 0);
+        patch[1] = new AudioConnection_F32(int2Float[1], 0, zita, 1);
+        patch[2] = new AudioConnection_F32(zita, 0, float2Int[0], 0);
+        patch[3] = new AudioConnection_F32(zita, 1, float2Int[1], 0);
+        patch[4] = new AudioConnection_F32(zita, 0, float2Int[2], 0);
+        patch[5] = new AudioConnection_F32(zita, 1, float2Int[3], 0);      
         patchFloatToOut[0] = new AudioConnection(float2Int[0], 0, audioOutput, 0);
         patchFloatToOut[1] = new AudioConnection(float2Int[1], 0, audioOutput, 1);
         patchFloatToOut[2] = new AudioConnection(float2Int[2], 0, audioOutput, 2);

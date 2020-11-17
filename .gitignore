@@ -1,0 +1,9 @@
+.vsteensy/build
+
+*.o
+*.d
+*.a
+*.d
+*.hex
+*.lst
+*.sym

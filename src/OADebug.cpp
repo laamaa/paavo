@@ -1,4 +1,5 @@
 #include "inc/OADebug.h"
+#include "inc/AudioManager.h"
 
 void OADebug::printResources(float cpu, uint8_t memF32, uint8_t memI16)
 {
@@ -43,6 +44,12 @@ void OADebug::selectCommand(char c)
     case '\t':
         // reboot Teensy
         *(uint32_t *)0xE000ED0C = 0x5FA0004;
+        break;
+    case 'b':
+        am->bypassFx();
+        break;
+    case 'i':
+        am->bypassShimmer();
         break;
     default:
         break;

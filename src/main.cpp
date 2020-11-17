@@ -5,13 +5,14 @@
 #include "inc/GUI.h"
 #include "inc/Oscilloscope.h"
 
-#if SYNTH_DEBUG > 0
-#include "inc/OADebug.h"
-OADebug debug;
-#endif
-
 Paavo::AudioManager am;
 Paavo::GUI gui(&am);
+
+#if SYNTH_DEBUG > 0
+#include "inc/OADebug.h"
+OADebug debug(&am);
+#endif
+
 
 void setup(void)
 {

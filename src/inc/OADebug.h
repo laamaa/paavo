@@ -2,10 +2,14 @@
 #define OADEBUG_H_
 #include <Audio.h>
 #include <OpenAudio_ArduinoLibrary.h>
+#include "inc/AudioManager.h"
 
 class OADebug
 {
 public:
+    OADebug(Paavo::AudioManager *ptrAm) {
+        am=ptrAm;
+    }
     void update();
 
 private:
@@ -16,5 +20,6 @@ private:
     float statsCpu = 0;
     uint8_t statsMemI16 = 0;
     uint8_t statsMemF32 = 0;
+    Paavo::AudioManager *am;
 };
 #endif
