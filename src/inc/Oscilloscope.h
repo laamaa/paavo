@@ -4,7 +4,7 @@
 #include "AudioStream.h"
 #include <ILI9341_t3n.h>
 
-#define SCOPE_UPDATE_INTERVAL 17
+#define SCOPE_UPDATE_INTERVAL 16
 
 namespace Paavo
 {
@@ -20,6 +20,7 @@ namespace Paavo
             _offset_y = 0;
             mapMaxY = height / 2;
             oldPixelValue = new uint16_t[width]{};
+            blankPixelValue = new uint16_t[width]{};
             patchConverterOscilloscope = new AudioConnection(as, 0, *this, 0);
         }
         Oscilloscope(AudioStream &as, ILI9341_t3n *ptrDisplay, uint16_t width, uint16_t height, uint16_t offset_x, uint16_t offset_y) : AudioStream(1, inputQueueArray)
@@ -31,6 +32,7 @@ namespace Paavo
             _offset_y = offset_y;
             mapMaxY = height / 2;
             oldPixelValue = new uint16_t[width]{};
+            blankPixelValue = new uint16_t[width]{};
             patchConverterOscilloscope = new AudioConnection(as, 0, *this, 0);
         }
         ~Oscilloscope()
@@ -51,6 +53,7 @@ namespace Paavo
         uint16_t _offset_y;
         uint8_t mapMaxY;
         uint16_t *oldPixelValue;
+        uint16_t *blankPixelValue;
         bool updateInProgress = false;
         elapsedMillis lastUpdate;
     };

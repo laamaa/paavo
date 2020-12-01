@@ -7,5 +7,5 @@
 //ILI9341 TFT pins
 #define TFT_DC 9
 #define TFT_CS 10
-#define TFT_RST 8
+#define TFT_RST 255 // 255 = unused, connect to 3.3v
 #endif

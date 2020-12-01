@@ -5,8 +5,8 @@
 #include "inc/GUI.h"
 #include "inc/Oscilloscope.h"
 
-Paavo::AudioManager am;
-Paavo::GUI gui(&am);
+Paavo::Audio::Manager am;
+Paavo::GUI::Manager gui(&am);
 
 #if SYNTH_DEBUG > 0
 #include "inc/OADebug.h"

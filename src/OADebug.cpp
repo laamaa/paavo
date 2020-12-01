@@ -45,12 +45,6 @@ void OADebug::selectCommand(char c)
         // reboot Teensy
         *(uint32_t *)0xE000ED0C = 0x5FA0004;
         break;
-    case 'b':
-        am->bypassFx();
-        break;
-    case 'i':
-        am->bypassShimmer();
-        break;
     default:
         break;
     }

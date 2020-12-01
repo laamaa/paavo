@@ -25,44 +25,36 @@
 #ifndef faust_AudioEffectZitaShimmerReverb_F32_h_
 #define faust_AudioEffectZitaShimmerReverb_F32_h_
 
-#include <string>
-
 #include "Arduino.h"
 #include "AudioStream_F32.h"
 #include "Audio.h"
 
 class dsp;
-class MapUI;
+//class MapUI;
 class MidiUI;
 #if MIDICTRL
 class teensy_midi;
 #endif
 
+
 class AudioEffectZitaShimmerReverb_F32 : public AudioStream_F32
 {
-    public:
-    
-        AudioEffectZitaShimmerReverb_F32();
-        ~AudioEffectZitaShimmerReverb_F32();
-    
-        virtual void update(void);
-    
-        void setParamValue(const std::string& path, float value);
-        float getParamValue(const std::string& path);
-    
-    private:
-    
-        template <int INPUTS, int OUTPUTS>
-        void updateImp(void);
-    
-        float** fInChannel;
-        float** fOutChannel;
-        MapUI* fUI;
-    #if MIDICTRL
-        teensy_midi* fMIDIHandler;
-        MidiUI* fMIDIInterface;
-    #endif
-        dsp* fDSP;
+public:
+    AudioEffectZitaShimmerReverb_F32();
+    ~AudioEffectZitaShimmerReverb_F32();
+
+    virtual void update(void);
+  
+    void setQuicksetting(uint8_t setting, float val);
+
+
+private:
+    template <int INPUTS, int OUTPUTS>
+    void updateImp(void);
+
+    float **fInChannel;
+    float **fOutChannel;
+    dsp *fDSP;
 };
 
 #endif

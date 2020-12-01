@@ -22,8 +22,10 @@ namespace Paavo
                 pixel_y = map(wave_data, -30000, 30000, -mapMaxY, mapMaxY) + mapMaxY;
             pixel_y += _offset_y;
             pixel_x += _offset_x;
-            display->drawPixel(oldPixelValue[pixel_x], pixel_x, ILI9341_BLACK);
-            display->drawPixel(pixel_y, pixel_x, ILI9341_WHITE);
+            display->drawPixel(pixel_x, blankPixelValue[pixel_x], ILI9341_BLACK);
+            display->drawPixel(pixel_x, oldPixelValue[pixel_x], ILI9341_DARKGREY);
+            blankPixelValue[pixel_x] = oldPixelValue[pixel_x];
+            display->drawPixel(pixel_x, pixel_y, ILI9341_WHITE);
             oldPixelValue[pixel_x] = pixel_y;
             audio++;
             pixel_x++;

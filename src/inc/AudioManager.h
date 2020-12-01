@@ -4,43 +4,38 @@
 #include <Audio.h>
 #include <OpenAudio_ArduinoLibrary.h>
 #include "dsp/effect_zitareverb_f32.h"
+#include "AudioEffect.h"
 
 namespace Paavo
 {
-    class AudioManager
+    namespace Audio
     {
-    public:
-        ~AudioManager();
-        void init();
-        void update();
-        ::AudioStream &getMaster(uint8_t num);
-        inline void bypassFx() {
-            Serial.println(zita.getParamValue("Dry/Wet Mix"));
-            if (zita.getParamValue("Dry/Wet Mix") == 1.0f){
-                zita.setParamValue("Dry/Wet Mix",-0.0f);
-            } else {
-                zita.setParamValue("Dry/Wet Mix",1.0f);
-            }
-        }
-        inline void bypassShimmer() {
-            Serial.println(zita.getParamValue("shimmer"));
-            if (zita.getParamValue("shimmer") == -1.0f){
-                zita.setParamValue("shimmer",0.0f);
-            } else {
-                zita.setParamValue("shimmer",-1.0f);
-            }            
-        }
+        class Manager
+        {
+        public:
+            ~Manager();
+            void init();
+            void update();
+            ::AudioStream &getMaster(uint8_t num);
+            ::AudioStream_F32 &getF32Master(uint8_t num);
+            EffectMeta *getFx(int fxSlot){ return fxMeta[fxSlot]; }
 
-    private:
-        ::AudioOutputI2SQuad audioOutput;
-        ::AudioConvert_F32toI16 float2Int[4];
-        ::AudioConvert_I16toF32 int2Float[2];
-        ::AudioInputUSB usb1;
-        ::AudioEffectZitaShimmerReverb_F32 zita;
-        ::AudioConnection *patchUsbToFloat[2];
-        ::AudioConnection *patchFloatToOut[4];
-        ::AudioConnection_F32 *patch[6];
-    };
+        private:
+            ::AudioOutputI2SQuad audioOutput;
+            ::AudioConvert_F32toI16 float2Int[4];
+            ::AudioConvert_I16toF32 int2Float[2];
+            ::AudioInputUSB usb1;
+            ::AudioConnection *patchUsbToFloat[2];
+            ::AudioConnection *patchFloatToOut[4];
+            ::AudioConnection_F32 *patch[6];
+            //AudioEffectZitaShimmerReverb_F32 zita;
+            ::AudioStream_F32 *fx[4];
+            Paavo::Audio::EffectMeta *fxMeta[4];
+            //Effect fx[4] = {Effect(&zita,"Reverb",true),Effect(&zita,"Reverb",true),Effect(&zita,"Reverb",true),Effect(&zita,"Reverb",true)};
+            //AudioEffectZitaShimmerReverb_F32 zita;
+        };
+
+    } // namespace Audio
 } // namespace Paavo
 
 #endif

@@ -1,0 +1,53 @@
+#ifndef AUDIOEFFECT_H_
+#define AUDIOEFFECT_H_
+
+#include <string>
+#include "AudioStream_F32.h"
+
+namespace Paavo
+{
+    namespace Audio
+    {
+
+        template<class FX> class Effect
+        {
+        public:
+            struct EffectQuickSetting
+            {
+                std::string label = "";
+                float min = 0;
+                float max = 0;
+                void *ptrSet;
+                float *ptrGet;
+            };
+
+            Effect<FX>(std::string title, bool enabled)
+            {
+                pFX = new FX();
+                _title = title;
+                _enabled = enabled;
+            }
+            ~Effect<FX>()
+            {
+                delete this;
+            }
+
+            void addQuickSettings(uint8_t slot, EffectQuickSetting qs){
+                _quickSettings[slot] = qs;
+            }
+
+            void connectToEffect(Effect fx);
+
+            ::AudioStream_F32 &getAudioStreamObject() { return *pFX; }
+
+        private:
+            FX* pFX;
+            AudioConnection_F32 *patch[2];
+            std::string _title;
+            bool _enabled;
+            EffectQuickSetting _quickSettings[5] = {};
+        };
+    } // namespace Audio
+} // namespace Paavo
+
+#endif

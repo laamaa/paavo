@@ -27,10 +27,6 @@ Compilation options: -lang cpp -scal -ftz 0
 #define FAUSTFLOAT float
 #endif
 
-#include <algorithm>
-#include <cmath>
-#include <math.h>
-
 class mydspSIG0
 {
 
@@ -91,7 +87,7 @@ public:
 		for (int i = 0; (i < count); i = (i + 1))
 		{
 			iRec33[0] = (iRec33[1] + 1);
-			table[i] = std::sin((9.58738019e-05f * float((iRec33[0] + -1))));
+			table[i] = sin((9.58738019e-05f * float((iRec33[0] + -1))));
 			iRec33[1] = iRec33[0];
 		}
 	}
@@ -104,7 +100,7 @@ static float mydsp_faustpower2_f(float value)
 {
 	return (value * value);
 }
-static float ftbl0mydspSIG0[65536];
+static EXTMEM float ftbl0mydspSIG0[65536];
 
 #ifndef FAUSTCLASS
 #define FAUSTCLASS mydsp
@@ -126,7 +122,7 @@ public:
 	FAUSTFLOAT fVslider0;
 	float fRec0[2];
 	int IOTA;
-	float fVec0[4096];
+	float *fVec0;
 	FAUSTFLOAT fVslider1;
 	float fRec1[2];
 	int fSampleRate;
@@ -148,7 +144,7 @@ public:
 	float *fVec1;
 	float fConst5;
 	int iConst6;
-	float fVec2[4096];
+	float *fVec2;
 	float fConst7;
 	FAUSTFLOAT fVslider10;
 	float fVec3[2048];
@@ -161,7 +157,7 @@ public:
 	float *fVec4;
 	float fConst11;
 	int iConst12;
-	float fVec5[4096];
+	float *fVec5;
 	int iConst13;
 	float fRec16[2];
 	float fConst14;
@@ -171,7 +167,7 @@ public:
 	float *fVec6;
 	float fConst16;
 	int iConst17;
-	float fVec7[4096];
+	float *fVec7;
 	int iConst18;
 	float fRec20[2];
 	float fConst19;
@@ -243,57 +239,63 @@ public:
 	float fRec49[3];
 	float fRec48[3];
 
+	float tone = 0.5;
+
 public:
-	void metadata(Meta *m)
+	/* FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[1] Input/predelay", fVslider10, 60.0f, 20.0f, 100.0f, 1.0f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[2] Reverb/LF X", fVslider9, 200.0f, 50.0f, 1000.0f, 1.0f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[2] Reverb/Low RT60", fVslider8, 3.0f, 1.0f, 8.0f, 0.10000000000000001f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[2] Reverb/Mid RT60", fVslider6, 8.0f, 1.0f, 8.0f, 0.10000000000000001f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[2] Reverb/HF Damping", fVslider7, 6000.0f, 1500.0f, 23520.0f, 1.0f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[3] EQ1/EQ1 freq", fVslider4, 315.0f, 40.0f, 2500.0f, 1.0f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[3] EQ1/EQ1 lvl", fVslider5, -2.0f, -15.0f, 15.0f, 0.10000000000000001f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[4] EQ2/Eq2 Freq", fVslider2, 1500.0f, 160.0f, 10000.0f, 1.0f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[4] EQ2/Eq2 Level", fVslider3, -2.0f, -15.0f, 15.0f, 0.10000000000000001f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[5] Output/Dry/Wet Mix", fVslider1, 0.0f, -1.0f, 1.0f, 0.01f);
+FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[5] Output/Level", fVslider0, 0.0f, -70.0f, 40.0f, 0.10000000000000001f);
+FAUST_ADDVERTICALSLIDER("shimmer", fVslider11, 0.0f, -1.0f, 1.0f, 0.10000000000000001f); */
+
+	void setCrossover(float crossover)
 	{
-		m->declare("basics.lib/name", "Faust Basic Element Library");
-		m->declare("basics.lib/version", "0.1");
-		m->declare("delays.lib/name", "Faust Delay Library");
-		m->declare("delays.lib/version", "0.1");
-		m->declare("filename", "AudioEffectZitaShimmerReverb_F32.dsp");
-		m->declare("filters.lib/allpass_comb:author", "Julius O. Smith III");
-		m->declare("filters.lib/allpass_comb:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
-		m->declare("filters.lib/allpass_comb:license", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/fir:author", "Julius O. Smith III");
-		m->declare("filters.lib/fir:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
-		m->declare("filters.lib/fir:license", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/iir:author", "Julius O. Smith III");
-		m->declare("filters.lib/iir:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
-		m->declare("filters.lib/iir:license", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/lowpass0_highpass1", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/lowpass0_highpass1:author", "Julius O. Smith III");
-		m->declare("filters.lib/lowpass:author", "Julius O. Smith III");
-		m->declare("filters.lib/lowpass:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
-		m->declare("filters.lib/lowpass:license", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/name", "Faust Filters Library");
-		m->declare("filters.lib/peak_eq_rm:author", "Julius O. Smith III");
-		m->declare("filters.lib/peak_eq_rm:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
-		m->declare("filters.lib/peak_eq_rm:license", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/tf1:author", "Julius O. Smith III");
-		m->declare("filters.lib/tf1:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
-		m->declare("filters.lib/tf1:license", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/tf1s:author", "Julius O. Smith III");
-		m->declare("filters.lib/tf1s:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
-		m->declare("filters.lib/tf1s:license", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/tf2:author", "Julius O. Smith III");
-		m->declare("filters.lib/tf2:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
-		m->declare("filters.lib/tf2:license", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/version", "0.2");
-		m->declare("maths.lib/author", "GRAME");
-		m->declare("maths.lib/copyright", "GRAME");
-		m->declare("maths.lib/license", "LGPL with exception");
-		m->declare("maths.lib/name", "Faust Math Library");
-		m->declare("maths.lib/version", "2.3");
-		m->declare("name", "AudioEffectZitaShimmerReverb_F32");
-		m->declare("oscillators.lib/name", "Faust Oscillator Library");
-		m->declare("oscillators.lib/version", "0.1");
-		m->declare("platform.lib/name", "Generic Platform Library");
-		m->declare("platform.lib/version", "0.1");
-		m->declare("routes.lib/name", "Faust Signal Routing Library");
-		m->declare("routes.lib/version", "0.2");
-		m->declare("signals.lib/name", "Faust Signal Routing Library");
-		m->declare("signals.lib/version", "0.0");
+		constrain(crossover, 50.0f, 1000.0f);
+		this->fVslider9 = crossover;
 	}
+	float getCrossover() { return this->fVslider9; }
+
+	void setQuicksetting(uint8_t setting, float val)
+	{
+		switch (setting)
+		{
+		//predelay
+		case 0:
+			constrain(val, 0.0f, 100.0f);
+			this->fVslider10 = val; //Predelay
+			break;
+		//decay
+		case 1:
+			constrain(val,0.1f,10.0f);
+			this->fVslider8 = val * (1.0-tone); //low freq rt60
+			this->fVslider6 = val; //mid freq rt60
+			break;
+		//tone
+		case 2:
+			constrain(val,0.0f,1.0f);
+			this->tone = val;
+			break;
+		//shimmer
+		case 3:
+			constrain(val,-1.0f,1.0f);
+			this->fVslider11 = val; //Shimmer
+			break;
+		//dry/wet
+		case 4:
+			constrain(val,-1.0f,1.0f);
+			this->fVslider1 = val; //Output Dry/Wet Mix
+			break;
+		}
+	}
+
+	float getPredelay() { return this->fVslider10; }
 
 	virtual int getNumInputs()
 	{
@@ -361,51 +363,51 @@ public:
 	virtual void instanceConstants(int sample_rate)
 	{
 		fSampleRate = sample_rate;
-		fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
+		fConst0 = min<float>(192000.0f, max<float>(1.0f, float(fSampleRate)));
 		fConst1 = (6.28318548f / fConst0);
-		fConst2 = std::floor(((0.219990999f * fConst0) + 0.5f));
+		fConst2 = floor(((0.219990999f * fConst0) + 0.5f));
 		fConst3 = ((0.0f - (6.90775537f * fConst2)) / fConst0);
 		fConst4 = (3.14159274f / fConst0);
-		fConst5 = std::floor(((0.0191229992f * fConst0) + 0.5f));
-		iConst6 = int(std::min<float>(16384.0f, std::max<float>(0.0f, (fConst2 - fConst5))));
+		fConst5 = floor(((0.0191229992f * fConst0) + 0.5f));
+		iConst6 = int(min<float>(16384.0f, max<float>(0.0f, (fConst2 - fConst5))));
 		fConst7 = (0.00100000005f * fConst0);
-		iConst8 = int(std::min<float>(1024.0f, std::max<float>(0.0f, (fConst5 + -1.0f))));
-		fConst9 = std::floor(((0.256891012f * fConst0) + 0.5f));
+		iConst8 = int(min<float>(1024.0f, max<float>(0.0f, (fConst5 + -1.0f))));
+		fConst9 = floor(((0.256891012f * fConst0) + 0.5f));
 		fConst10 = ((0.0f - (6.90775537f * fConst9)) / fConst0);
-		fConst11 = std::floor(((0.0273330007f * fConst0) + 0.5f));
-		iConst12 = int(std::min<float>(16384.0f, std::max<float>(0.0f, (fConst9 - fConst11))));
-		iConst13 = int(std::min<float>(2048.0f, std::max<float>(0.0f, (fConst11 + -1.0f))));
-		fConst14 = std::floor(((0.192303002f * fConst0) + 0.5f));
+		fConst11 = floor(((0.0273330007f * fConst0) + 0.5f));
+		iConst12 = int(min<float>(16384.0f, max<float>(0.0f, (fConst9 - fConst11))));
+		iConst13 = int(min<float>(2048.0f, max<float>(0.0f, (fConst11 + -1.0f))));
+		fConst14 = floor(((0.192303002f * fConst0) + 0.5f));
 		fConst15 = ((0.0f - (6.90775537f * fConst14)) / fConst0);
-		fConst16 = std::floor(((0.0292910002f * fConst0) + 0.5f));
-		iConst17 = int(std::min<float>(8192.0f, std::max<float>(0.0f, (fConst14 - fConst16))));
-		iConst18 = int(std::min<float>(2048.0f, std::max<float>(0.0f, (fConst16 + -1.0f))));
-		fConst19 = std::floor(((0.210389003f * fConst0) + 0.5f));
+		fConst16 = floor(((0.0292910002f * fConst0) + 0.5f));
+		iConst17 = int(min<float>(8192.0f, max<float>(0.0f, (fConst14 - fConst16))));
+		iConst18 = int(min<float>(2048.0f, max<float>(0.0f, (fConst16 + -1.0f))));
+		fConst19 = floor(((0.210389003f * fConst0) + 0.5f));
 		fConst20 = ((0.0f - (6.90775537f * fConst19)) / fConst0);
-		fConst21 = std::floor(((0.0244210009f * fConst0) + 0.5f));
-		iConst22 = int(std::min<float>(16384.0f, std::max<float>(0.0f, (fConst19 - fConst21))));
-		iConst23 = int(std::min<float>(2048.0f, std::max<float>(0.0f, (fConst21 + -1.0f))));
-		fConst24 = std::floor(((0.125f * fConst0) + 0.5f));
+		fConst21 = floor(((0.0244210009f * fConst0) + 0.5f));
+		iConst22 = int(min<float>(16384.0f, max<float>(0.0f, (fConst19 - fConst21))));
+		iConst23 = int(min<float>(2048.0f, max<float>(0.0f, (fConst21 + -1.0f))));
+		fConst24 = floor(((0.125f * fConst0) + 0.5f));
 		fConst25 = ((0.0f - (6.90775537f * fConst24)) / fConst0);
 		fConst26 = (1.0f / fConst0);
-		fConst27 = std::floor(((0.0134579996f * fConst0) + 0.5f));
-		iConst28 = int(std::min<float>(8192.0f, std::max<float>(0.0f, (fConst24 - fConst27))));
-		iConst29 = int(std::min<float>(1024.0f, std::max<float>(0.0f, (fConst27 + -1.0f))));
-		fConst30 = std::floor(((0.127837002f * fConst0) + 0.5f));
+		fConst27 = floor(((0.0134579996f * fConst0) + 0.5f));
+		iConst28 = int(min<float>(8192.0f, max<float>(0.0f, (fConst24 - fConst27))));
+		iConst29 = int(min<float>(1024.0f, max<float>(0.0f, (fConst27 + -1.0f))));
+		fConst30 = floor(((0.127837002f * fConst0) + 0.5f));
 		fConst31 = ((0.0f - (6.90775537f * fConst30)) / fConst0);
-		fConst32 = std::floor(((0.0316039994f * fConst0) + 0.5f));
-		iConst33 = int(std::min<float>(8192.0f, std::max<float>(0.0f, (fConst30 - fConst32))));
-		iConst34 = int(std::min<float>(2048.0f, std::max<float>(0.0f, (fConst32 + -1.0f))));
-		fConst35 = std::floor(((0.174713001f * fConst0) + 0.5f));
+		fConst32 = floor(((0.0316039994f * fConst0) + 0.5f));
+		iConst33 = int(min<float>(8192.0f, max<float>(0.0f, (fConst30 - fConst32))));
+		iConst34 = int(min<float>(2048.0f, max<float>(0.0f, (fConst32 + -1.0f))));
+		fConst35 = floor(((0.174713001f * fConst0) + 0.5f));
 		fConst36 = ((0.0f - (6.90775537f * fConst35)) / fConst0);
-		fConst37 = std::floor(((0.0229039993f * fConst0) + 0.5f));
-		iConst38 = int(std::min<float>(8192.0f, std::max<float>(0.0f, (fConst35 - fConst37))));
-		iConst39 = int(std::min<float>(2048.0f, std::max<float>(0.0f, (fConst37 + -1.0f))));
-		fConst40 = std::floor(((0.153128996f * fConst0) + 0.5f));
+		fConst37 = floor(((0.0229039993f * fConst0) + 0.5f));
+		iConst38 = int(min<float>(8192.0f, max<float>(0.0f, (fConst35 - fConst37))));
+		iConst39 = int(min<float>(2048.0f, max<float>(0.0f, (fConst37 + -1.0f))));
+		fConst40 = floor(((0.153128996f * fConst0) + 0.5f));
 		fConst41 = ((0.0f - (6.90775537f * fConst40)) / fConst0);
-		fConst42 = std::floor(((0.0203460008f * fConst0) + 0.5f));
-		iConst43 = int(std::min<float>(8192.0f, std::max<float>(0.0f, (fConst40 - fConst42))));
-		iConst44 = int(std::min<float>(1024.0f, std::max<float>(0.0f, (fConst42 + -1.0f))));
+		fConst42 = floor(((0.0203460008f * fConst0) + 0.5f));
+		iConst43 = int(min<float>(8192.0f, max<float>(0.0f, (fConst40 - fConst42))));
+		iConst44 = int(min<float>(1024.0f, max<float>(0.0f, (fConst42 + -1.0f))));
 	}
 
 	virtual void instanceResetUserInterface()
@@ -685,7 +687,11 @@ public:
 		fVec13 = (float *)extmem_malloc(sizeof(float) * 16384);
 		fVec15 = (float *)extmem_malloc(sizeof(float) * 16384);
 		fVec17 = (float *)extmem_malloc(sizeof(float) * 16384);
-		fVec10 = (float *)extmem_malloc(sizeof(float) * 8192); 
+		fVec10 = (float *)malloc(sizeof(float) * 8192);
+		fVec0 = (float *)malloc(sizeof(float) * 4096);
+		fVec2 = (float *)malloc(sizeof(float) * 4096);
+		fVec5 = (float *)malloc(sizeof(float) * 4096);
+		fVec7 = (float *)malloc(sizeof(float) * 4096);
 	}
 
 	void freeExternalMemory()
@@ -698,7 +704,11 @@ public:
 		extmem_free(fVec13);
 		extmem_free(fVec15);
 		extmem_free(fVec17);
-		extmem_free(fVec10);
+		free(fVec10);
+		free(fVec0);
+		free(fVec2);
+		free(fVec5);
+		free(fVec7);
 	}
 
 	virtual void instanceInit(int sample_rate)
@@ -719,182 +729,105 @@ public:
 		return fSampleRate;
 	}
 
-	virtual void buildUserInterface(UI *ui_interface)
-	{
-		ui_interface->openVerticalBox("AudioEffectZitaShimmerReverb_F32");
-		ui_interface->declare(0, "0", "");
-		ui_interface->openHorizontalBox("AudioEffectZitaShimmerReverb");
-		ui_interface->declare(0, "1", "");
-		ui_interface->openHorizontalBox("Input");
-		ui_interface->declare(&fVslider10, "1", "");
-		ui_interface->declare(&fVslider10, "style", "knob");
-		ui_interface->declare(&fVslider10, "unit", "ms");
-		ui_interface->addVerticalSlider("predelay", &fVslider10, 60.0f, 20.0f, 100.0f, 1.0f);
-		ui_interface->closeBox();
-		ui_interface->declare(0, "2", "");
-		ui_interface->openHorizontalBox("Reverb");
-		ui_interface->declare(&fVslider9, "1", "");
-		ui_interface->declare(&fVslider9, "scale", "log");
-		ui_interface->declare(&fVslider9, "style", "knob");
-		ui_interface->declare(&fVslider9, "unit", "Hz");
-		ui_interface->addVerticalSlider("LF X", &fVslider9, 200.0f, 50.0f, 1000.0f, 1.0f);
-		ui_interface->declare(&fVslider8, "2", "");
-		ui_interface->declare(&fVslider8, "scale", "log");
-		ui_interface->declare(&fVslider8, "style", "knob");
-		ui_interface->declare(&fVslider8, "unit", "s");
-		ui_interface->addVerticalSlider("Low RT60", &fVslider8, 3.0f, 1.0f, 8.0f, 0.100000001f);
-		ui_interface->declare(&fVslider6, "3", "");
-		ui_interface->declare(&fVslider6, "scale", "log");
-		ui_interface->declare(&fVslider6, "style", "knob");
-		ui_interface->declare(&fVslider6, "unit", "s");
-		ui_interface->addVerticalSlider("Mid RT60", &fVslider6, 8.0f, 1.0f, 8.0f, 0.100000001f);
-		ui_interface->declare(&fVslider7, "4", "");
-		ui_interface->declare(&fVslider7, "scale", "log");
-		ui_interface->declare(&fVslider7, "style", "knob");
-		ui_interface->declare(&fVslider7, "unit", "Hz");
-		ui_interface->addVerticalSlider("HF Damping", &fVslider7, 6000.0f, 1500.0f, 23520.0f, 1.0f);
-		ui_interface->closeBox();
-		ui_interface->declare(0, "3", "");
-		ui_interface->openHorizontalBox("EQ1");
-		ui_interface->declare(&fVslider4, "1", "");
-		ui_interface->declare(&fVslider4, "scale", "log");
-		ui_interface->declare(&fVslider4, "style", "knob");
-		ui_interface->declare(&fVslider4, "unit", "Hz");
-		ui_interface->addVerticalSlider("EQ1 freq", &fVslider4, 315.0f, 40.0f, 2500.0f, 1.0f);
-		ui_interface->declare(&fVslider5, "2", "");
-		ui_interface->declare(&fVslider5, "style", "knob");
-		ui_interface->declare(&fVslider5, "unit", "dB");
-		ui_interface->addVerticalSlider("EQ1 lvl", &fVslider5, -2.0f, -15.0f, 15.0f, 0.100000001f);
-		ui_interface->closeBox();
-		ui_interface->declare(0, "4", "");
-		ui_interface->openHorizontalBox("EQ2");
-		ui_interface->declare(&fVslider2, "1", "");
-		ui_interface->declare(&fVslider2, "scale", "log");
-		ui_interface->declare(&fVslider2, "style", "knob");
-		ui_interface->declare(&fVslider2, "tooltip", "Center-frequency of second-order Regalia-Mitra peaking equalizer section 2");
-		ui_interface->declare(&fVslider2, "unit", "Hz");
-		ui_interface->addVerticalSlider("Eq2 Freq", &fVslider2, 1500.0f, 160.0f, 10000.0f, 1.0f);
-		ui_interface->declare(&fVslider3, "2", "");
-		ui_interface->declare(&fVslider3, "style", "knob");
-		ui_interface->declare(&fVslider3, "tooltip", "Peak level   in dB of second-order Regalia-Mitra peaking equalizer section 2");
-		ui_interface->declare(&fVslider3, "unit", "dB");
-		ui_interface->addVerticalSlider("Eq2 Level", &fVslider3, -2.0f, -15.0f, 15.0f, 0.100000001f);
-		ui_interface->closeBox();
-		ui_interface->declare(0, "5", "");
-		ui_interface->openHorizontalBox("Output");
-		ui_interface->declare(&fVslider1, "1", "");
-		ui_interface->declare(&fVslider1, "style", "knob");
-		ui_interface->addVerticalSlider("Dry/Wet Mix", &fVslider1, 0.0f, -1.0f, 1.0f, 0.00999999978f);
-		ui_interface->declare(&fVslider0, "2", "");
-		ui_interface->declare(&fVslider0, "style", "knob");
-		ui_interface->declare(&fVslider0, "unit", "dB");
-		ui_interface->addVerticalSlider("Level", &fVslider0, 0.0f, -70.0f, 40.0f, 0.100000001f);
-		ui_interface->closeBox();
-		ui_interface->closeBox();
-		ui_interface->declare(&fVslider11, "style", "knob");
-		ui_interface->addVerticalSlider("shimmer", &fVslider11, 0.0f, -1.0f, 1.0f, 0.100000001f);
-		ui_interface->closeBox();
-	}
-
 	virtual void compute(int count, FAUSTFLOAT **inputs, FAUSTFLOAT **outputs)
 	{
 		FAUSTFLOAT *input0 = inputs[0];
 		FAUSTFLOAT *input1 = inputs[1];
 		FAUSTFLOAT *output0 = outputs[0];
 		FAUSTFLOAT *output1 = outputs[1];
-		float fSlow0 = (0.00100000005f * std::pow(10.0f, (0.0500000007f * float(fVslider0))));
+		float fSlow0 = (0.00100000005f * pow(10.0f, (0.0500000007f * float(fVslider0))));
 		float fSlow1 = (0.00100000005f * float(fVslider1));
 		float fSlow2 = float(fVslider2);
-		float fSlow3 = std::pow(10.0f, (0.0500000007f * float(fVslider3)));
-		float fSlow4 = (fConst1 * (fSlow2 / std::sqrt(std::max<float>(0.0f, fSlow3))));
+		float fSlow3 = pow(10.0f, (0.0500000007f * float(fVslider3)));
+		float fSlow4 = (fConst1 * (fSlow2 / sqrt(max<float>(0.0f, fSlow3))));
 		float fSlow5 = ((1.0f - fSlow4) / (fSlow4 + 1.0f));
 		float fSlow6 = float(fVslider4);
-		float fSlow7 = std::pow(10.0f, (0.0500000007f * float(fVslider5)));
-		float fSlow8 = (fConst1 * (fSlow6 / std::sqrt(std::max<float>(0.0f, fSlow7))));
+		float fSlow7 = pow(10.0f, (0.0500000007f * float(fVslider5)));
+		float fSlow8 = (fConst1 * (fSlow6 / sqrt(max<float>(0.0f, fSlow7))));
 		float fSlow9 = ((1.0f - fSlow8) / (fSlow8 + 1.0f));
 		float fSlow10 = float(fVslider6);
-		float fSlow11 = std::exp((fConst3 / fSlow10));
+		float fSlow11 = exp((fConst3 / fSlow10));
 		float fSlow12 = mydsp_faustpower2_f(fSlow11);
-		float fSlow13 = std::cos((fConst1 * float(fVslider7)));
+		float fSlow13 = cos((fConst1 * float(fVslider7)));
 		float fSlow14 = (1.0f - (fSlow12 * fSlow13));
 		float fSlow15 = (1.0f - fSlow12);
 		float fSlow16 = (fSlow14 / fSlow15);
-		float fSlow17 = std::sqrt(std::max<float>(0.0f, ((mydsp_faustpower2_f(fSlow14) / mydsp_faustpower2_f(fSlow15)) + -1.0f)));
+		float fSlow17 = sqrt(max<float>(0.0f, ((mydsp_faustpower2_f(fSlow14) / mydsp_faustpower2_f(fSlow15)) + -1.0f)));
 		float fSlow18 = (fSlow16 - fSlow17);
 		float fSlow19 = (fSlow11 * (fSlow17 + (1.0f - fSlow16)));
 		float fSlow20 = float(fVslider8);
-		float fSlow21 = ((std::exp((fConst3 / fSlow20)) / fSlow11) + -1.0f);
-		float fSlow22 = (1.0f / std::tan((fConst4 * float(fVslider9))));
+		float fSlow21 = ((exp((fConst3 / fSlow20)) / fSlow11) + -1.0f);
+		float fSlow22 = (1.0f / tan((fConst4 * float(fVslider9))));
 		float fSlow23 = (1.0f / (fSlow22 + 1.0f));
 		float fSlow24 = (1.0f - fSlow22);
-		int iSlow25 = int(std::min<float>(2700.0f, std::max<float>(0.0f, (fConst7 * float(fVslider10)))));
-		float fSlow26 = std::exp((fConst10 / fSlow10));
+		int iSlow25 = int(min<float>(2700.0f, max<float>(0.0f, (fConst7 * float(fVslider10)))));
+		float fSlow26 = exp((fConst10 / fSlow10));
 		float fSlow27 = mydsp_faustpower2_f(fSlow26);
 		float fSlow28 = (1.0f - (fSlow27 * fSlow13));
 		float fSlow29 = (1.0f - fSlow27);
 		float fSlow30 = (fSlow28 / fSlow29);
-		float fSlow31 = std::sqrt(std::max<float>(0.0f, ((mydsp_faustpower2_f(fSlow28) / mydsp_faustpower2_f(fSlow29)) + -1.0f)));
+		float fSlow31 = sqrt(max<float>(0.0f, ((mydsp_faustpower2_f(fSlow28) / mydsp_faustpower2_f(fSlow29)) + -1.0f)));
 		float fSlow32 = (fSlow30 - fSlow31);
 		float fSlow33 = (fSlow26 * (fSlow31 + (1.0f - fSlow30)));
-		float fSlow34 = ((std::exp((fConst10 / fSlow20)) / fSlow26) + -1.0f);
-		float fSlow35 = std::exp((fConst15 / fSlow10));
+		float fSlow34 = ((exp((fConst10 / fSlow20)) / fSlow26) + -1.0f);
+		float fSlow35 = exp((fConst15 / fSlow10));
 		float fSlow36 = mydsp_faustpower2_f(fSlow35);
 		float fSlow37 = (1.0f - (fSlow36 * fSlow13));
 		float fSlow38 = (1.0f - fSlow36);
 		float fSlow39 = (fSlow37 / fSlow38);
-		float fSlow40 = std::sqrt(std::max<float>(0.0f, ((mydsp_faustpower2_f(fSlow37) / mydsp_faustpower2_f(fSlow38)) + -1.0f)));
+		float fSlow40 = sqrt(max<float>(0.0f, ((mydsp_faustpower2_f(fSlow37) / mydsp_faustpower2_f(fSlow38)) + -1.0f)));
 		float fSlow41 = (fSlow39 - fSlow40);
 		float fSlow42 = (fSlow35 * (fSlow40 + (1.0f - fSlow39)));
-		float fSlow43 = ((std::exp((fConst15 / fSlow20)) / fSlow35) + -1.0f);
-		float fSlow44 = std::exp((fConst20 / fSlow10));
+		float fSlow43 = ((exp((fConst15 / fSlow20)) / fSlow35) + -1.0f);
+		float fSlow44 = exp((fConst20 / fSlow10));
 		float fSlow45 = mydsp_faustpower2_f(fSlow44);
 		float fSlow46 = (1.0f - (fSlow45 * fSlow13));
 		float fSlow47 = (1.0f - fSlow45);
 		float fSlow48 = (fSlow46 / fSlow47);
-		float fSlow49 = std::sqrt(std::max<float>(0.0f, ((mydsp_faustpower2_f(fSlow46) / mydsp_faustpower2_f(fSlow47)) + -1.0f)));
+		float fSlow49 = sqrt(max<float>(0.0f, ((mydsp_faustpower2_f(fSlow46) / mydsp_faustpower2_f(fSlow47)) + -1.0f)));
 		float fSlow50 = (fSlow48 - fSlow49);
 		float fSlow51 = (fSlow44 * (fSlow49 + (1.0f - fSlow48)));
-		float fSlow52 = ((std::exp((fConst20 / fSlow20)) / fSlow44) + -1.0f);
+		float fSlow52 = ((exp((fConst20 / fSlow20)) / fSlow44) + -1.0f);
 		float fSlow53 = (0.5f * (float(fVslider11) + 1.0f));
-		float fSlow54 = std::exp((fConst25 / fSlow10));
+		float fSlow54 = exp((fConst25 / fSlow10));
 		float fSlow55 = mydsp_faustpower2_f(fSlow54);
 		float fSlow56 = (1.0f - (fSlow55 * fSlow13));
 		float fSlow57 = (1.0f - fSlow55);
 		float fSlow58 = (fSlow56 / fSlow57);
-		float fSlow59 = std::sqrt(std::max<float>(0.0f, ((mydsp_faustpower2_f(fSlow56) / mydsp_faustpower2_f(fSlow57)) + -1.0f)));
+		float fSlow59 = sqrt(max<float>(0.0f, ((mydsp_faustpower2_f(fSlow56) / mydsp_faustpower2_f(fSlow57)) + -1.0f)));
 		float fSlow60 = (fSlow58 - fSlow59);
 		float fSlow61 = (fSlow54 * (fSlow59 + (1.0f - fSlow58)));
-		float fSlow62 = ((std::exp((fConst25 / fSlow20)) / fSlow54) + -1.0f);
+		float fSlow62 = ((exp((fConst25 / fSlow20)) / fSlow54) + -1.0f);
 		float fSlow63 = (1.0f - fSlow53);
-		float fSlow64 = std::exp((fConst31 / fSlow10));
+		float fSlow64 = exp((fConst31 / fSlow10));
 		float fSlow65 = mydsp_faustpower2_f(fSlow64);
 		float fSlow66 = (1.0f - (fSlow65 * fSlow13));
 		float fSlow67 = (1.0f - fSlow65);
 		float fSlow68 = (fSlow66 / fSlow67);
-		float fSlow69 = std::sqrt(std::max<float>(0.0f, ((mydsp_faustpower2_f(fSlow66) / mydsp_faustpower2_f(fSlow67)) + -1.0f)));
+		float fSlow69 = sqrt(max<float>(0.0f, ((mydsp_faustpower2_f(fSlow66) / mydsp_faustpower2_f(fSlow67)) + -1.0f)));
 		float fSlow70 = (fSlow68 - fSlow69);
 		float fSlow71 = (fSlow64 * (fSlow69 + (1.0f - fSlow68)));
-		float fSlow72 = ((std::exp((fConst31 / fSlow20)) / fSlow64) + -1.0f);
-		float fSlow73 = std::exp((fConst36 / fSlow10));
+		float fSlow72 = ((exp((fConst31 / fSlow20)) / fSlow64) + -1.0f);
+		float fSlow73 = exp((fConst36 / fSlow10));
 		float fSlow74 = mydsp_faustpower2_f(fSlow73);
 		float fSlow75 = (1.0f - (fSlow74 * fSlow13));
 		float fSlow76 = (1.0f - fSlow74);
 		float fSlow77 = (fSlow75 / fSlow76);
-		float fSlow78 = std::sqrt(std::max<float>(0.0f, ((mydsp_faustpower2_f(fSlow75) / mydsp_faustpower2_f(fSlow76)) + -1.0f)));
+		float fSlow78 = sqrt(max<float>(0.0f, ((mydsp_faustpower2_f(fSlow75) / mydsp_faustpower2_f(fSlow76)) + -1.0f)));
 		float fSlow79 = (fSlow77 - fSlow78);
 		float fSlow80 = (fSlow73 * (fSlow78 + (1.0f - fSlow77)));
-		float fSlow81 = ((std::exp((fConst36 / fSlow20)) / fSlow73) + -1.0f);
-		float fSlow82 = std::exp((fConst41 / fSlow10));
+		float fSlow81 = ((exp((fConst36 / fSlow20)) / fSlow73) + -1.0f);
+		float fSlow82 = exp((fConst41 / fSlow10));
 		float fSlow83 = mydsp_faustpower2_f(fSlow82);
 		float fSlow84 = (1.0f - (fSlow83 * fSlow13));
 		float fSlow85 = (1.0f - fSlow83);
 		float fSlow86 = (fSlow84 / fSlow85);
-		float fSlow87 = std::sqrt(std::max<float>(0.0f, ((mydsp_faustpower2_f(fSlow84) / mydsp_faustpower2_f(fSlow85)) + -1.0f)));
+		float fSlow87 = sqrt(max<float>(0.0f, ((mydsp_faustpower2_f(fSlow84) / mydsp_faustpower2_f(fSlow85)) + -1.0f)));
 		float fSlow88 = (fSlow86 - fSlow87);
 		float fSlow89 = (fSlow82 * (fSlow87 + (1.0f - fSlow86)));
-		float fSlow90 = ((std::exp((fConst41 / fSlow20)) / fSlow82) + -1.0f);
-		float fSlow91 = (0.0f - (std::cos((fConst1 * fSlow6)) * (fSlow9 + 1.0f)));
-		float fSlow92 = (0.0f - (std::cos((fConst1 * fSlow2)) * (fSlow5 + 1.0f)));
+		float fSlow90 = ((exp((fConst41 / fSlow20)) / fSlow82) + -1.0f);
+		float fSlow91 = (0.0f - (cos((fConst1 * fSlow6)) * (fSlow9 + 1.0f)));
+		float fSlow92 = (0.0f - (cos((fConst1 * fSlow2)) * (fSlow5 + 1.0f)));
 		for (int i = 0; (i < count); i = (i + 1))
 		{
 			fRec0[0] = (fSlow0 + (0.999000013f * fRec0[1]));
@@ -940,15 +873,15 @@ public:
 			fVec10[(IOTA & 8191)] = fTemp9;
 			fRec35[0] = (0.5f * (fRec35[1] + 1.0f));
 			float fTemp10 = (fRec34[1] + (fConst26 * fRec35[0]));
-			fRec34[0] = (fTemp10 - std::floor(fTemp10));
-			fRec32[0] = std::fmod((fRec32[1] + (4097.0f - std::pow(2.0f, (0.0833333358f * ((0.0500000007f * ftbl0mydspSIG0[int((65536.0f * fRec34[0]))]) + 12.0f))))), 4096.0f);
+			fRec34[0] = (fTemp10 - floor(fTemp10));
+			fRec32[0] = fmod((fRec32[1] + (4097.0f - pow(2.0f, (0.0833333358f * ((0.0500000007f * ftbl0mydspSIG0[int((65536.0f * fRec34[0]))]) + 12.0f))))), 4096.0f);
 			int iTemp11 = int(fRec32[0]);
-			float fTemp12 = std::floor(fRec32[0]);
-			float fTemp13 = std::min<float>((0.001953125f * fRec32[0]), 1.0f);
+			float fTemp12 = floor(fRec32[0]);
+			float fTemp13 = min<float>((0.001953125f * fRec32[0]), 1.0f);
 			float fTemp14 = (fRec32[0] + 4096.0f);
 			int iTemp15 = int(fTemp14);
-			float fTemp16 = std::floor(fTemp14);
-			fVec11[(IOTA & 16383)] = ((fSlow53 * fTemp9) + (fSlow63 * ((((fVec10[((IOTA - std::min<int>(4097, std::max<int>(0, iTemp11))) & 8191)] * (fTemp12 + (1.0f - fRec32[0]))) + ((fRec32[0] - fTemp12) * fVec10[((IOTA - std::min<int>(4097, std::max<int>(0, (iTemp11 + 1)))) & 8191)])) * fTemp13) + (((fVec10[((IOTA - std::min<int>(4097, std::max<int>(0, iTemp15))) & 8191)] * (fTemp16 + (-4095.0f - fRec32[0]))) + ((fRec32[0] + (4096.0f - fTemp16)) * fVec10[((IOTA - std::min<int>(4097, std::max<int>(0, (iTemp15 + 1)))) & 8191)])) * (1.0f - fTemp13)))));
+			float fTemp16 = floor(fTemp14);
+			fVec11[(IOTA & 16383)] = ((fSlow53 * fTemp9) + (fSlow63 * ((((fVec10[((IOTA - min<int>(4097, max<int>(0, iTemp11))) & 8191)] * (fTemp12 + (1.0f - fRec32[0]))) + ((fRec32[0] - fTemp12) * fVec10[((IOTA - min<int>(4097, max<int>(0, (iTemp11 + 1)))) & 8191)])) * fTemp13) + (((fVec10[((IOTA - min<int>(4097, max<int>(0, iTemp15))) & 8191)] * (fTemp16 + (-4095.0f - fRec32[0]))) + ((fRec32[0] + (4096.0f - fTemp16)) * fVec10[((IOTA - min<int>(4097, max<int>(0, (iTemp15 + 1)))) & 8191)])) * (1.0f - fTemp13)))));
 			float fTemp17 = (0.300000012f * fVec0[((IOTA - iSlow25) & 4095)]);
 			float fTemp18 = (fVec11[((IOTA - iConst28) & 16383)] - (fTemp17 + (0.600000024f * fRec28[1])));
 			fVec12[(IOTA & 2047)] = fTemp18;
@@ -1088,19 +1021,19 @@ FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[5] Output/Dry/Wet Mix
 FAUST_ADDVERTICALSLIDER("[0] AudioEffectZitaShimmerReverb/[5] Output/Level", fVslider0, 0.0f, -70.0f, 40.0f, 0.10000000000000001f);
 FAUST_ADDVERTICALSLIDER("shimmer", fVslider11, 0.0f, -1.0f, 1.0f, 0.10000000000000001f);
 
-#define FAUST_LIST_ACTIVES(p)                                                                                                              		\
-	p(VERTICALSLIDER, predelay, "[0] AudioEffectZitaShimmerReverb/[1] Input/predelay", fVslider10, 60.0f, 20.0f, 100.0f, 1.0f)            	 	\
-	p(VERTICALSLIDER, LF_X, "[0] AudioEffectZitaShimmerReverb/[2] Reverb/LF X", fVslider9, 200.0f, 50.0f, 1000.0f, 1.0f)                   		\
-	p(VERTICALSLIDER, Low_RT60, "[0] AudioEffectZitaShimmerReverb/[2] Reverb/Low RT60", fVslider8, 3.0f, 1.0f, 8.0f, 0.10000000000000001f)	 	\
-	p(VERTICALSLIDER, Mid_RT60, "[0] AudioEffectZitaShimmerReverb/[2] Reverb/Mid RT60", fVslider6, 8.0f, 1.0f, 8.0f, 0.10000000000000001f) 		\
-	p(VERTICALSLIDER, HF_Damping, "[0] AudioEffectZitaShimmerReverb/[2] Reverb/HF Damping", fVslider7, 6000.0f, 1500.0f, 23520.0f, 1.0f)   		\
-	p(VERTICALSLIDER, EQ1_freq, "[0] AudioEffectZitaShimmerReverb/[3] EQ1/EQ1 freq", fVslider4, 315.0f, 40.0f, 2500.0f, 1.0f)              		\
-	p(VERTICALSLIDER, EQ1_lvl, "[0] AudioEffectZitaShimmerReverb/[3] EQ1/EQ1 lvl", fVslider5, -2.0f, -15.0f, 15.0f, 0.10000000000000001f)    	\
-	p(VERTICALSLIDER, Eq2_Freq, "[0] AudioEffectZitaShimmerReverb/[4] EQ2/Eq2 Freq", fVslider2, 1500.0f, 160.0f, 10000.0f, 1.0f)             	\
-	p(VERTICALSLIDER, Eq2_Level, "[0] AudioEffectZitaShimmerReverb/[4] EQ2/Eq2 Level", fVslider3, -2.0f, -15.0f, 15.0f, 0.10000000000000001f)	\
-	p(VERTICALSLIDER, Dry / Wet_Mix, "[0] AudioEffectZitaShimmerReverb/[5] Output/Dry/Wet Mix", fVslider1, 0.0f, -1.0f, 1.0f, 0.01f)      		\
-	p(VERTICALSLIDER, Level, "[0] AudioEffectZitaShimmerReverb/[5] Output/Level", fVslider0, 0.0f, -70.0f, 40.0f, 0.10000000000000001f) 		\
-	p(VERTICALSLIDER, shimmer, "shimmer", fVslider11, 0.0f, -1.0f, 1.0f, 0.10000000000000001f)
+#define FAUST_LIST_ACTIVES(p)                                                                                                                                                   \
+	p(VERTICALSLIDER, predelay, "[0] AudioEffectZitaShimmerReverb/[1] Input/predelay", fVslider10, 60.0f, 20.0f, 100.0f, 1.0f)                                                  \
+		p(VERTICALSLIDER, LF_X, "[0] AudioEffectZitaShimmerReverb/[2] Reverb/LF X", fVslider9, 200.0f, 50.0f, 1000.0f, 1.0f)                                                    \
+			p(VERTICALSLIDER, Low_RT60, "[0] AudioEffectZitaShimmerReverb/[2] Reverb/Low RT60", fVslider8, 3.0f, 1.0f, 8.0f, 0.10000000000000001f)                              \
+				p(VERTICALSLIDER, Mid_RT60, "[0] AudioEffectZitaShimmerReverb/[2] Reverb/Mid RT60", fVslider6, 8.0f, 1.0f, 8.0f, 0.10000000000000001f)                          \
+					p(VERTICALSLIDER, HF_Damping, "[0] AudioEffectZitaShimmerReverb/[2] Reverb/HF Damping", fVslider7, 6000.0f, 1500.0f, 23520.0f, 1.0f)                        \
+						p(VERTICALSLIDER, EQ1_freq, "[0] AudioEffectZitaShimmerReverb/[3] EQ1/EQ1 freq", fVslider4, 315.0f, 40.0f, 2500.0f, 1.0f)                               \
+							p(VERTICALSLIDER, EQ1_lvl, "[0] AudioEffectZitaShimmerReverb/[3] EQ1/EQ1 lvl", fVslider5, -2.0f, -15.0f, 15.0f, 0.10000000000000001f)               \
+								p(VERTICALSLIDER, Eq2_Freq, "[0] AudioEffectZitaShimmerReverb/[4] EQ2/Eq2 Freq", fVslider2, 1500.0f, 160.0f, 10000.0f, 1.0f)                    \
+									p(VERTICALSLIDER, Eq2_Level, "[0] AudioEffectZitaShimmerReverb/[4] EQ2/Eq2 Level", fVslider3, -2.0f, -15.0f, 15.0f, 0.10000000000000001f)   \
+										p(VERTICALSLIDER, Dry / Wet_Mix, "[0] AudioEffectZitaShimmerReverb/[5] Output/Dry/Wet Mix", fVslider1, 0.0f, -1.0f, 1.0f, 0.01f)        \
+											p(VERTICALSLIDER, Level, "[0] AudioEffectZitaShimmerReverb/[5] Output/Level", fVslider0, 0.0f, -70.0f, 40.0f, 0.10000000000000001f) \
+												p(VERTICALSLIDER, shimmer, "shimmer", fVslider11, 0.0f, -1.0f, 1.0f, 0.10000000000000001f)
 
 #define FAUST_LIST_PASSIVES(p)
 
@@ -1133,8 +1066,8 @@ AudioEffectZitaShimmerReverb_F32::AudioEffectZitaShimmerReverb_F32() : AudioStre
 
 	fDSP->init(AUDIO_SAMPLE_RATE_EXACT);
 
-	fUI = new MapUI();
-	fDSP->buildUserInterface(fUI);
+	//fUI = new MapUI();
+	//fDSP->buildUserInterface(fUI);
 
 	// allocating Faust inputs
 	if (fDSP->getNumInputs() > 0)
@@ -1178,7 +1111,7 @@ AudioEffectZitaShimmerReverb_F32::AudioEffectZitaShimmerReverb_F32() : AudioStre
 AudioEffectZitaShimmerReverb_F32::~AudioEffectZitaShimmerReverb_F32()
 {
 	delete fDSP;
-	delete fUI;
+	//delete fUI;
 	for (int i = 0; i < fDSP->getNumInputs(); i++)
 	{
 		delete[] fInChannel[i];
@@ -1240,16 +1173,6 @@ void AudioEffectZitaShimmerReverb_F32::updateImp(void)
 }
 
 void AudioEffectZitaShimmerReverb_F32::update(void) { updateImp<FAUST_INPUTS, FAUST_OUTPUTS>(); }
-
-void AudioEffectZitaShimmerReverb_F32::setParamValue(const std::string &path, float value)
-{
-	fUI->setParamValue(path, value);
-}
-
-float AudioEffectZitaShimmerReverb_F32::getParamValue(const std::string &path)
-{
-	return fUI->getParamValue(path);
-}
 
 /********************END ARCHITECTURE SECTION (part 2/2)****************/
 

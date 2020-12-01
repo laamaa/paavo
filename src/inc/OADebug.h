@@ -7,7 +7,7 @@
 class OADebug
 {
 public:
-    OADebug(Paavo::AudioManager *ptrAm) {
+    OADebug(Paavo::Audio::Manager *ptrAm) {
         am=ptrAm;
     }
     void update();
@@ -20,6 +20,6 @@ private:
     float statsCpu = 0;
     uint8_t statsMemI16 = 0;
     uint8_t statsMemF32 = 0;
-    Paavo::AudioManager *am;
+    Paavo::Audio::Manager *am;
 };
 #endif
