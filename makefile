@@ -21,7 +21,7 @@ LIBS_SHARED_BASE := C:\Users\hipho\Documents\Arduino\libraries
 LIBS_SHARED      := 
 
 LIBS_LOCAL_BASE  := lib
-LIBS_LOCAL       := Audio Wire SD SerialFlash SPI OpenAudio_ArduinoLibrary ILI9341_t3n
+LIBS_LOCAL       := Audio Wire SD SerialFlash SPI OpenAudio_ArduinoLibrary ILI9341_t3n Encoder Bounce2
 
 CORE_BASE        := core
 GCC_BASE         := C:\PROGRA~2\Arduino\hardware\tools\arm\bin

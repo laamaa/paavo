@@ -24,10 +24,13 @@ namespace Paavo
             void drawMenuGrid();
             void drawLabels(uint8_t fxslot);
             void drawValues(uint8_t fxslot, uint8_t numQfx = 255);
+            inline void setActiveFx(uint8_t activeFx) { _activeFx = activeFx; }
+            uint8_t getActiveFx() { return _activeFx; }
 
         private:
             ILI9341_t3n *display;
             Audio::Manager *am;
+            uint8_t _activeFx = 0;
         };
 
         class Manager
@@ -45,7 +48,8 @@ namespace Paavo
             void update();
             bool updateDisplay = false;
             inline void clearDisplay() { tft.fillScreen(ILI9341_BLACK); }
-
+            inline GUI::QuickFxSettingsMenu *getQuickFxMenu() { return qm; }
+            
         private:
             ILI9341_t3n tft = ILI9341_t3n(TFT_CS, TFT_DC, TFT_RST);
             uint16_t *tftFrameBuffer;

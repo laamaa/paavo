@@ -28,14 +28,7 @@
 #include "Arduino.h"
 #include "AudioStream_F32.h"
 #include "Audio.h"
-
-class dsp;
-//class MapUI;
-class MidiUI;
-#if MIDICTRL
-class teensy_midi;
-#endif
-
+#include "dsp/faust_architecture.h"
 
 class AudioEffectZitaShimmerReverb_F32 : public AudioStream_F32
 {
@@ -44,17 +37,14 @@ public:
     ~AudioEffectZitaShimmerReverb_F32();
 
     virtual void update(void);
-  
-    void setQuicksetting(uint8_t setting, float val);
-
+    mydsp *getMydsp() { return fDSP; }
 
 private:
-    template <int INPUTS, int OUTPUTS>
     void updateImp(void);
 
     float **fInChannel;
     float **fOutChannel;
-    dsp *fDSP;
+    mydsp *fDSP;
 };
 
 #endif

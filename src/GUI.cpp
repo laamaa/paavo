@@ -46,13 +46,13 @@ void Paavo::GUI::QuickFxSettingsMenu::drawLabels(uint8_t fxslot)
     display->setFont(OpenSans14);
     display->println(am->getFx(fxslot)->getTitle());
     display->setFont(OpenSans8);
-        
+
     for (int i = 0; i < 5; i++)
     {
         display->setCursor((ILI9341_TFTHEIGHT * 0.2 * i) + ILI9341_TFTHEIGHT * 0.1, (ILI9341_TFTWIDTH * 0.8), true);
-        display->println(am->getFx(fxslot)->getQuickSetting(i).getLabel());
-        display->setCursor((ILI9341_TFTHEIGHT * 0.2 * i) + ILI9341_TFTHEIGHT * 0.1, (ILI9341_TFTWIDTH * 0.9)+14, true);
-        display->println(am->getFx(fxslot)->getQuickSetting(i).getUnit());
+        display->println(am->getFx(fxslot)->getQuickSetting(i)->getLabel());
+        display->setCursor((ILI9341_TFTHEIGHT * 0.2 * i) + ILI9341_TFTHEIGHT * 0.1, (ILI9341_TFTWIDTH * 0.9) + 14, true);
+        display->println(am->getFx(fxslot)->getQuickSetting(i)->getUnit());
     }
     drawValues(0);
 }
@@ -68,7 +68,13 @@ void Paavo::GUI::QuickFxSettingsMenu::drawValues(uint8_t fxslot, uint8_t qfxNum)
         for (int i = 0; i < 5; i++)
         {
             display->setCursor((ILI9341_TFTHEIGHT * 0.2 * i) + ILI9341_TFTHEIGHT * 0.1, (ILI9341_TFTWIDTH * 0.9), true);
-            display->printf("%.1f",am->getFx(fxslot)->getQuickSetting(i).getValue());
+            display->printf("%.1f", am->getFx(fxslot)->getQuickSetting(i)->getValue());
         }
+    }
+    else
+    {
+        //Draw one value
+        display->setCursor((ILI9341_TFTHEIGHT * 0.2 * qfxNum) + ILI9341_TFTHEIGHT * 0.1, (ILI9341_TFTWIDTH * 0.9), true);
+        display->printf("%.1f", am->getFx(fxslot)->getQuickSetting(qfxNum)->getValue());
     }
 }

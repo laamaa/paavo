@@ -18,7 +18,7 @@ namespace Paavo
             void update();
             ::AudioStream &getMaster(uint8_t num);
             ::AudioStream_F32 &getF32Master(uint8_t num);
-            EffectMeta *getFx(int fxSlot){ return fxMeta[fxSlot]; }
+            Paavo::Audio::EffectBase *getFx(uint8_t fxSlot) { return fx[fxSlot]; }
 
         private:
             ::AudioOutputI2SQuad audioOutput;
@@ -28,11 +28,8 @@ namespace Paavo
             ::AudioConnection *patchUsbToFloat[2];
             ::AudioConnection *patchFloatToOut[4];
             ::AudioConnection_F32 *patch[6];
-            //AudioEffectZitaShimmerReverb_F32 zita;
-            ::AudioStream_F32 *fx[4];
-            Paavo::Audio::EffectMeta *fxMeta[4];
-            //Effect fx[4] = {Effect(&zita,"Reverb",true),Effect(&zita,"Reverb",true),Effect(&zita,"Reverb",true),Effect(&zita,"Reverb",true)};
-            //AudioEffectZitaShimmerReverb_F32 zita;
+            Paavo::Audio::EffectBase *fx[4];
+            uint8_t _activeFx = 0;
         };
 
     } // namespace Audio

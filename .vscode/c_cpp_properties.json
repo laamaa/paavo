@@ -11,7 +11,9 @@
         "lib/SerialFlash/**",
         "lib/SPI/**",
         "lib/OpenAudio_ArduinoLibrary/**",
-        "lib/ILI9341_t3n/**"
+        "lib/ILI9341_t3n/**",
+        "lib/Encoder/**",
+        "lib/Bounce2/**"
       ],
       "forcedInclude": [],
       "defines": [

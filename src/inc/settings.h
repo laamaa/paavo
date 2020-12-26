@@ -2,7 +2,7 @@
 #define SETTINGS_H_
 
 //Enable debug functions
-#define SYNTH_DEBUG 1
+#define SYNTH_DEBUG 2
 
 //ILI9341 TFT pins
 #define TFT_DC 9

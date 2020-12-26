@@ -3,16 +3,16 @@
 #include "inc/settings.h"
 #include "inc/AudioManager.h"
 #include "inc/GUI.h"
-#include "inc/Oscilloscope.h"
+#include "inc/HardwareControls.h"
 
 Paavo::Audio::Manager am;
 Paavo::GUI::Manager gui(&am);
+Paavo::Controls::HardwareControls hw(&gui, &am);
 
 #if SYNTH_DEBUG > 0
 #include "inc/OADebug.h"
 OADebug debug(&am);
 #endif
-
 
 void setup(void)
 {
@@ -21,6 +21,7 @@ void setup(void)
   Serial.println(F("Paavo starttaileepi"));
   am.init();
   gui.init();
+  hw.init();
 }
 
 void loop(void)
@@ -28,6 +29,6 @@ void loop(void)
 #if SYNTH_DEBUG > 0
   debug.update();
 #endif
-gui.update();
-
+  gui.update();
+  hw.update();
 }
